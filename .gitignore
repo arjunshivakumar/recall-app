@@ -1,0 +1,36 @@
+# dependencies
+node_modules/
+**/node_modules/
+
+# Expo / React Native
+.expo/
+**/.expo/
+dist/
+web-build/
+.metro-health-check*
+
+# local environment files
+.env
+.env.*
+!.env.example
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# TypeScript / build metadata
+*.tsbuildinfo
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+
+# secrets / signing files
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.pem
