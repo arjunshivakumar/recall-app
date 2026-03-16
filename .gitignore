@@ -34,3 +34,7 @@ Thumbs.db
 *.key
 *.mobileprovision
 *.pem
+
+# nested repo backups
+*.git_backup_*
+**/.git_backup_*
