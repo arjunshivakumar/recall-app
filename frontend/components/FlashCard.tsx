@@ -22,34 +22,24 @@ export default function FlashCard({
     }).start();
   }, [progress, showAnswer]);
 
-  const frontScale = progress.interpolate({
+  const frontRotate = progress.interpolate({
     inputRange: [0, 1],
-    outputRange: [1, 0.985],
+    outputRange: ["0deg", "180deg"],
   });
 
-  const backScale = progress.interpolate({
+  const backRotate = progress.interpolate({
     inputRange: [0, 1],
-    outputRange: [0.985, 1],
-  });
-
-  const frontTranslate = progress.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, -6],
-  });
-
-  const backTranslate = progress.interpolate({
-    inputRange: [0, 1],
-    outputRange: [6, 0],
+    outputRange: ["-180deg", "0deg"],
   });
 
   const frontOpacity = progress.interpolate({
-    inputRange: [0, 0.45, 1],
-    outputRange: [1, 0.12, 0],
+    inputRange: [0, 0.49, 0.5, 1],
+    outputRange: [1, 1, 0, 0],
   });
 
   const backOpacity = progress.interpolate({
-    inputRange: [0, 0.55, 1],
-    outputRange: [0, 0.12, 1],
+    inputRange: [0, 0.5, 0.51, 1],
+    outputRange: [0, 0, 1, 1],
   });
 
   return (
@@ -61,10 +51,12 @@ export default function FlashCard({
             styles.frontFace,
             {
               opacity: frontOpacity,
-              transform: [{ translateY: frontTranslate }, { scale: frontScale }],
+              transform: [{ perspective: 1200 }, { rotateY: frontRotate }],
             },
           ]}
           pointerEvents={showAnswer ? "none" : "auto"}
+          renderToHardwareTextureAndroid
+          shouldRasterizeIOS
         >
           <View style={styles.inner}>
             <View style={styles.topBlock}>
@@ -88,10 +80,12 @@ export default function FlashCard({
             styles.backFace,
             {
               opacity: backOpacity,
-              transform: [{ translateY: backTranslate }, { scale: backScale }],
+              transform: [{ perspective: 1200 }, { rotateY: backRotate }],
             },
           ]}
           pointerEvents={showAnswer ? "auto" : "none"}
+          renderToHardwareTextureAndroid
+          shouldRasterizeIOS
         >
           <View style={styles.inner}>
             <View style={styles.topBlock}>
@@ -139,6 +133,7 @@ const styles = StyleSheet.create({
       height: 16,
     },
     elevation: 6,
+    backfaceVisibility: "hidden",
   },
   frontFace: {
     borderWidth: 1,

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -36,22 +36,49 @@ const ratingEmphasis: Record<(typeof ratings)[number], number> = {
   Easy: 1,
 };
 
+const FLIP_DURATION_MS = 220;
+
 export default function QuestionsScreen() {
   const tabBarHeight = useBottomTabBarHeight();
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
+  const [answerCardIndex, setAnswerCardIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
   const [reviewedCount, setReviewedCount] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const transitionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const currentCard = questions[currentCardIndex];
+  const answerCard = questions[answerCardIndex];
   const sessionProgress = useMemo(
     () => Math.min(reviewedCount / questions.length, 1),
     [reviewedCount]
   );
 
+  useEffect(() => {
+    return () => {
+      if (transitionTimeoutRef.current) {
+        clearTimeout(transitionTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const handleNextCard = () => {
+    if (isTransitioning) {
+      return;
+    }
+
+    const nextIndex = (currentCardIndex + 1) % questions.length;
+
+    setIsTransitioning(true);
+    setCurrentCardIndex(nextIndex);
     setShowAnswer(false);
-    setReviewedCount((previousCount) => Math.min(previousCount + 1, questions.length));
-    setCurrentCardIndex((previousIndex) => (previousIndex + 1) % questions.length);
+
+    transitionTimeoutRef.current = setTimeout(() => {
+      setAnswerCardIndex(nextIndex);
+      setReviewedCount((previousCount) => Math.min(previousCount + 1, questions.length));
+      setIsTransitioning(false);
+      transitionTimeoutRef.current = null;
+    }, FLIP_DURATION_MS);
   };
 
   return (
@@ -76,7 +103,7 @@ export default function QuestionsScreen() {
         <View style={styles.cardSection}>
           <FlashCard
             question={currentCard.question}
-            answer={currentCard.answer}
+            answer={answerCard.answer}
             showAnswer={showAnswer}
           />
         </View>
@@ -86,6 +113,7 @@ export default function QuestionsScreen() {
             <TouchableOpacity
               activeOpacity={0.9}
               style={styles.primaryButton}
+              disabled={isTransitioning}
               onPress={() => setShowAnswer(true)}
             >
               <Text style={styles.primaryButtonText}>Show Answer</Text>
